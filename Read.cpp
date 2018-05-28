@@ -1,33 +1,59 @@
-#ifdef WIN32
-#include <windows.h>
-#else
 #include <unistd.h>
-#endif
-
+#include <signal.h>
 void delay(int ms){
-#ifdef WIN32
-  Sleep(ms);
-#else
   usleep(ms*1000);
-#endif
 }
 
 #include "MFRC522.h"
 #include <wiringPi.h>
 #include <softPwm.h>
+#include <iostream>
+#include <chrono>
+#include <iomanip>
+#include <ctime>
 
-byte goodCard[5] = {{} }
+class Servo {
+private:
+	unsigned int pin;
+	unsigned int valueOpen;
+	unsigned int valueClose;
+public:
+	Servo(int pin, int vOpen, int vClose) {
+		this->pin = pin;
+		this->valueOpen = vOpen;
+		this->valueClose = vClose;
+		softPwmCreate(pin, valueClose, 200);
+	}
+
+	void open() {
+		softPwmWrite(pin, valueOpen);
+	}
+
+	void close() {
+		softPwmWrite(pin, valueClose);
+	}
+};
+
+
+void terminateProgram(int sig) {
+	auto now = std::chrono::system_clock::now();
+	auto now_c = std::chrono::system_clock::to_time_t(now - std::chrono::hours(0));
+	std::cout << std::put_time(std::localtime(&now_c), "%F %T") <<" - End of program"<<std::endl;
+
+	exit(1);
+}
 
 int main(int argc, char** argv){
+      signal(SIGINT, terminateProgram);
   MFRC522 mfrc;
-
   mfrc.PCD_Init();
 
-  if (wiringPiSetupGpio() == -1)
+  if (wiringPiSetupGpio() == -1) {
+	  std::cout << std::put_time(std::localtime(&now_c), "%F %T") <<" - End of program"<<std::endl;
 	  exit (1) ;
-  softPwmCreate(24, atoi(argv[1]), 200);
+  }
 
-
+  Servo servo(atoi(argv[1], argv[2], argv[3]));
   while(1){
     // Look for a card
     if(!mfrc.PICC_IsNewCardPresent())
@@ -36,7 +62,6 @@ int main(int argc, char** argv){
     if( !mfrc.PICC_ReadCardSerial())
       continue;
 
-    softPwmWrite(24, atoi(argv[2]));
 
     // Print UID
     for(byte i = 0; i < mfrc.uid.size; ++i){
@@ -52,7 +77,6 @@ int main(int argc, char** argv){
     }
     printf("\n");
     delay(1000);
-    softPwmWrite(24, atoi(argv[1]));
   }
   return 0;
 }
