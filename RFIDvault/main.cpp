@@ -2,11 +2,11 @@
 #include <signal.h>
 #include "MFRC522.h"
 #include <wiringPi.h>
-#include <softPwm.h>
 #include <iostream>
 #include <chrono>
 #include <iomanip>
 #include <ctime>
+#include "rpiServo.h"
 
 void delay(int ms) {
 	usleep(ms * 1000);
@@ -14,27 +14,25 @@ void delay(int ms) {
 
 class Servo {
 private:
-	unsigned int pin;
+	rpiServo servo;
 	unsigned int valueOpen;
 	unsigned int valueClose;
 public:
-	Servo(int pin, int vOpen, int vClose) {
-		this->pin = pin;
+	Servo(int vOpen, int vClose) {
 		this->valueOpen = vOpen;
 		this->valueClose = vClose;
-		softPwmCreate(pin, valueClose, 200);
 	}
 
 	virtual ~Servo() {
-		softPwmWrite(pin, valueClose);
+		close();
 	}
 
 	void open() {
-		softPwmWrite(pin, valueOpen);
+		servo.setAngle(this->valueOpen);
 	}
 
 	void close() {
-		softPwmWrite(pin, valueClose);
+		servo.setAngle(this->valueClose);
 	}
 };
 
@@ -75,14 +73,14 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 
-	servo = new Servo(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
+	servo = new Servo(atoi(argv[1]), atoi(argv[2]));
 
+	pinMode(atoi(argv[3]), INPUT);
+	pullUpDnControl(atoi(argv[3]), PUD_UP);
 	pinMode(atoi(argv[4]), INPUT);
 	pullUpDnControl(atoi(argv[4]), PUD_UP);
-	pinMode(atoi(argv[5]), INPUT);
-	pullUpDnControl(atoi(argv[5]), PUD_UP);
-	int initServiceMode = wiringPiISR(atoi(argv[4]), INT_EDGE_FALLING, serviceMode);
-	int initCloseDoorMode = wiringPiISR(atoi(argv[5]), INT_EDGE_FALLING, servoCloseMode);
+	int initServiceMode = wiringPiISR(atoi(argv[3]), INT_EDGE_FALLING, serviceMode);
+	int initCloseDoorMode = wiringPiISR(atoi(argv[4]), INT_EDGE_FALLING, servoCloseMode);
 
 	while (1) {
 		// Look for a card
