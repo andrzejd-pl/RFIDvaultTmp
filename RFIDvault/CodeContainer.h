@@ -7,8 +7,11 @@
 #include <cstdlib>
 #include <vector>
 #include <fstream>
+#include "MFRC522.h"
 
 using namespace std;
+
+using Uid = MFRC522::Uid;
 
 class  CodeContainer
 {

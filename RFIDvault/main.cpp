@@ -1,4 +1,6 @@
 #include <unistd.h>
+#include <sstream>
+#include <iomanip>
 #include <signal.h>
 #include "MFRC522.h"
 #include <wiringPi.h>
@@ -12,6 +14,18 @@ void delay(int ms) {
 	usleep(ms * 1000);
 }
 
+void log(const std::string& message) {
+	auto now = std::chrono::system_clock::now();
+	auto now_c = std::chrono::system_clock::to_time_t(now - std::chrono::hours(0));
+	std::cout << std::put_time(std::localtime(&now_c), "%F %T") << " - " << message << std::endl;
+}
+
+std::string toHex(const int myInt) {
+	std::stringstream stream;
+	stream << std::hex << myInt;
+	return stream.str();
+}
+
 Servo* servo;
 
 void serviceMode() {
@@ -22,17 +36,13 @@ void serviceMode() {
 }
 
 void servoCloseMode() {
-	auto now = std::chrono::system_clock::now();
-	auto now_c = std::chrono::system_clock::to_time_t(now - std::chrono::hours(0));
-	std::cout << std::put_time(std::localtime(&now_c), "%F %T") << " - Servo Close Mode!" << std::endl;
+	log("Servo Close Mode!");
 
 	servo->close();
 }
 
 void terminateProgram(int sig) {
-	auto now = std::chrono::system_clock::now();
-	auto now_c = std::chrono::system_clock::to_time_t(now - std::chrono::hours(0));
-	std::cout << std::put_time(std::localtime(&now_c), "%F %T") << " - End of program!" << std::endl;
+	log("End of program!");
 
 	delete servo;
 	exit(1);
@@ -44,9 +54,7 @@ int main(int argc, char** argv) {
 	mfrc.PCD_Init();
 
 	if (wiringPiSetupGpio() == -1) {
-		auto now = std::chrono::system_clock::now();
-		auto now_c = std::chrono::system_clock::to_time_t(now - std::chrono::hours(0));
-		std::cout << std::put_time(std::localtime(&now_c), "%F %T") << " - Cannot start WiringPi GPIO!" << std::endl;
+		log("Cannot start WiringPi GPIO!");
 		exit(1);
 	}
 
@@ -56,6 +64,7 @@ int main(int argc, char** argv) {
 	pullUpDnControl(atoi(argv[3]), PUD_UP);
 	pinMode(atoi(argv[4]), INPUT);
 	pullUpDnControl(atoi(argv[4]), PUD_UP);
+	
 	int initServiceMode = wiringPiISR(atoi(argv[3]), INT_EDGE_FALLING, serviceMode);
 	int initCloseDoorMode = wiringPiISR(atoi(argv[4]), INT_EDGE_FALLING, servoCloseMode);
 
@@ -69,15 +78,15 @@ int main(int argc, char** argv) {
 
 
 		servo->open();
+
+		std::string cardTmp = "Card: ";
 		// Print UID
 		for (byte i = 0; i < mfrc.uid.size; ++i) {
 			if (mfrc.uid.uidByte[i] < 0x10) {
-				printf(" 0");
-				printf("%X", mfrc.uid.uidByte[i]);
+				cardTmp += " 0" + std::to_string(mfrc.uid.uidByte[i]);
 			}
 			else {
-				printf(" ");
-				printf("%X", mfrc.uid.uidByte[i]);
+				cardTmp += " " + std::to_string(mfrc.uid.uidByte[i])
 			}
 
 		}
