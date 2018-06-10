@@ -62,6 +62,7 @@
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
     <ClInclude Include="bcm2835.h" />
+    <ClInclude Include="CodeContainer.h" />
     <ClInclude Include="MFRC522.h" />
     <ClInclude Include="rpiPWM1.h" />
     <ClInclude Include="rpiServo.h" />
