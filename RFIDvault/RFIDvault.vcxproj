@@ -62,15 +62,20 @@
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
     <ClInclude Include="bcm2835.h" />
+    <ClInclude Include="CodeContainer.h" />
+    <ClInclude Include="Led.h" />
     <ClInclude Include="MFRC522.h" />
     <ClInclude Include="rpiPWM1.h" />
     <ClInclude Include="rpiServo.h" />
+    <ClInclude Include="Servo.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Led.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MFRC522.cpp" />
     <ClCompile Include="rpiPWM1.cpp" />
     <ClCompile Include="rpiServo.cpp" />
+    <ClCompile Include="Servo.cpp" />
   </ItemGroup>
   <ItemDefinitionGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

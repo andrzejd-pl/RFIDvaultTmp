@@ -6,35 +6,11 @@
 #include <chrono>
 #include <iomanip>
 #include <ctime>
-#include "rpiServo.h"
+#include "Servo.h"
 
 void delay(int ms) {
 	usleep(ms * 1000);
 }
-
-class Servo {
-private:
-	rpiServo servo;
-	unsigned int valueOpen;
-	unsigned int valueClose;
-public:
-	Servo(int vOpen, int vClose) {
-		this->valueOpen = vOpen;
-		this->valueClose = vClose;
-	}
-
-	virtual ~Servo() {
-		close();
-	}
-
-	void open() {
-		servo.setAngle(this->valueOpen);
-	}
-
-	void close() {
-		servo.setAngle(this->valueClose);
-	}
-};
 
 Servo* servo;
 
@@ -52,6 +28,7 @@ void servoCloseMode() {
 
 	servo->close();
 }
+
 void terminateProgram(int sig) {
 	auto now = std::chrono::system_clock::now();
 	auto now_c = std::chrono::system_clock::to_time_t(now - std::chrono::hours(0));
