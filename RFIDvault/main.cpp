@@ -46,9 +46,7 @@ void servoCloseMode() {
 void terminateProgram(int sig) {
 	log("End of program!");
 
-
 	servo->close();
-
 	delete servo;
 	exit(1);
 }
