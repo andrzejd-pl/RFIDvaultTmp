@@ -39,8 +39,11 @@ void serviceMode() {
 	delay(1000);
 
 	while (!mfrc.PICC_IsNewCardPresent());
-
-	cards.WriteToContainer(mfrc.uid);
+	Card cardNew;
+	cardNew.uid = mfrc.uid;
+	cardNew.name = "";
+	cardNew.validated = false;
+	cards.WriteToContainer(cardNew));
 }
 
 void servoCloseMode() {
