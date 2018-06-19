@@ -43,7 +43,7 @@ void serviceMode() {
 	cardNew.uid = mfrc.uid;
 	cardNew.name = "";
 	cardNew.validated = false;
-	cards.WriteToContainer(cardNew));
+	cards.WriteToContainer(cardNew);
 }
 
 void servoCloseMode() {

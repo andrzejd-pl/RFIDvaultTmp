@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <vector>
 #include <fstream>
+#include <sstream>
 #include "MFRC522.h"
 
 using namespace std;
@@ -71,7 +72,6 @@ public:
 				string buff;
 				istringstream buffStream(buff);
 				getline(file, buff, ';');
-				istringstream buffStream(buff);
 				for (int i = 0; i < tmp.uid.size; i++) {
 					getline(buffStream, napis, ':');
 					tmp.uid.uidByte[i] = atoi(napis.c_str());
