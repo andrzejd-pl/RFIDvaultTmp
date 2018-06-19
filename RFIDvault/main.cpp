@@ -44,6 +44,7 @@ void servoCloseMode() {
 void terminateProgram(int sig) {
 	log("End of program!");
 
+	servo->close();
 	delete servo;
 	exit(1);
 }
@@ -59,6 +60,8 @@ int main(int argc, char** argv) {
 	}
 
 	servo = new Servo(atoi(argv[1]), atoi(argv[2]));
+
+	servo->close();
 
 	pinMode(atoi(argv[3]), INPUT);
 	pullUpDnControl(atoi(argv[3]), PUD_UP);
