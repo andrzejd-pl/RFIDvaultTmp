@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <ctime>
 #include "Servo.h"
+#include "CodeContainer.h"
 
 void delay(int ms) {
 	usleep(ms * 1000);
@@ -28,13 +29,18 @@ std::string toHex(const int myInt) {
 
 Servo* servo;
 
+CodeContainer cards;
+MFRC522 mfrc;
+
 void serviceMode() {
 	auto now = std::chrono::system_clock::now();
 	auto now_c = std::chrono::system_clock::to_time_t(now - std::chrono::hours(0));
 	std::cout << std::put_time(std::localtime(&now_c), "%F %T") << " - Service Mode!" << std::endl;
 	delay(1000);
 
-	
+	while (!mfrc.PICC_IsNewCardPresent());
+
+	cards.WriteToContainer(mfrc.uid);
 }
 
 void servoCloseMode() {
@@ -53,7 +59,6 @@ void terminateProgram(int sig) {
 
 int main(int argc, char** argv) {
 	signal(SIGINT, terminateProgram);
-	MFRC522 mfrc;
 	mfrc.PCD_Init();
 
 	if (wiringPiSetupGpio() == -1) {
