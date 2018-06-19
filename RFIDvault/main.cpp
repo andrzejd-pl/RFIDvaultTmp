@@ -96,7 +96,7 @@ int main(int argc, char** argv) {
 				cardTmp += " 0" + std::to_string(mfrc.uid.uidByte[i]);
 			}
 			else {
-				cardTmp += " " + std::to_string(mfrc.uid.uidByte[i])
+				cardTmp += " " + std::to_string(mfrc.uid.uidByte[i]);
 			}
 
 		}
