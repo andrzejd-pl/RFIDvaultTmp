@@ -13,6 +13,12 @@ using namespace std;
 
 using Uid = MFRC522::Uid;
 
+struct Card {
+	Uid uid;
+	string name;
+	bool validated;
+};
+
 class  CodeContainer
 {
 public:
@@ -20,9 +26,8 @@ public:
 	CodeContainer() {}
 	~CodeContainer() {}
 
-	void WriteToContainer(Uid &card) {
-		vector<Uid> tab;
-		ReadFromContainer(tab);
+	void WriteToContainer(Card &card) {
+		vector<Card> tab = ReadFromContainer();
 		remove("/var/www/rfidVault/data/knownCards");
 		tab.push_back(card);
 
@@ -30,41 +35,63 @@ public:
 		if (file.good())
 		{
 			for (auto x : tab) {
-				wholecard = to_string(x.size) + ':';
-				for (int i = 0; i < x.size; i++)
+				wholecard = to_string(x.uid.size) + ':';
+				for (int i = 0; i < x.uid.size; i++)
 				{
 					//itoa(card.uidByte[i], reinterpret_cast<char*>(&buffer), 10);
-					wholecard = wholecard + to_string(x.uidByte[i]) + ':';
+					wholecard = wholecard + to_string(x.uid.uidByte[i]) + ':';
 				}
-				file << wholecard << endl;
+				wholecard[wholecard.length() - 2] = ';';
+
+				file << wholecard << x.name << ";";
+				if (x.validated)
+					file << "1" << endl;
+				else
+					file << "0" << endl;
+
 			}
 		}
 		file.close();
 	}
 
-	void ReadFromContainer(vector<Uid> &tab) {
-
+	vector<Card> ReadFromContainer() {
+		vector<Card> tab;
 		fstream file("/var/www/rfidVault/data/knownCards", ios::in);
 		if (file.good())
 		{
 			//int  size = 0;
 			string napis = "";
-			Uid tmp;
 
 			while (!file.eof())
 			{
+				Card tmp;
 				getline(file, napis, ':');
 				cout << napis << endl;
-				tmp.size = atoi(napis.c_str());
-				for (int i = 0; i < tmp.size; i++) {
-					getline(file, napis, ':');
-					tmp.uidByte[i] = atoi(napis.c_str());
+				tmp.uid.size = atoi(napis.c_str());
+				string buff;
+				istringstream buffStream(buff);
+				getline(file, buff, ';');
+				istringstream buffStream(buff);
+				for (int i = 0; i < tmp.uid.size; i++) {
+					getline(buffStream, napis, ':');
+					tmp.uid.uidByte[i] = atoi(napis.c_str());
 				}
+
+				getline(file, buff, ';');
+				tmp.name = buff;
+				getline(file, buff);
+
+				if (buff == "1")
+					tmp.validated = true;
+				else
+					tmp.validated = false;
+
 				tab.push_back(tmp);
 			}
 			file.close();
 		}
 
+		return tab;
 	}
 
 
