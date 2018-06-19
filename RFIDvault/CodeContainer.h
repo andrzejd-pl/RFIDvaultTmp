@@ -23,10 +23,10 @@ public:
 	void WriteToContainer(Uid &card) {
 		vector<Uid> tab;
 		ReadFromContainer(tab);
-		remove("container.txt");
+		remove("/var/www/rfidVault/knownCards");
 		tab.push_back(card);
 
-		fstream file("container.txt", ios::out);
+		fstream file("/var/www/rfidVault/knownCards", ios::out);
 		if (file.good())
 		{
 			for (auto x : tab) {
@@ -44,7 +44,7 @@ public:
 
 	void ReadFromContainer(vector<Uid> &tab) {
 
-		fstream file("container.txt", ios::in);
+		fstream file("/var/www/rfidVault/knownCards", ios::in);
 		if (file.good())
 		{
 			//int  size = 0;

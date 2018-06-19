@@ -33,6 +33,8 @@ void serviceMode() {
 	auto now_c = std::chrono::system_clock::to_time_t(now - std::chrono::hours(0));
 	std::cout << std::put_time(std::localtime(&now_c), "%F %T") << " - Service Mode!" << std::endl;
 	delay(1000);
+
+	
 }
 
 void servoCloseMode() {
@@ -43,6 +45,9 @@ void servoCloseMode() {
 
 void terminateProgram(int sig) {
 	log("End of program!");
+
+
+	servo->close();
 
 	delete servo;
 	exit(1);
@@ -59,6 +64,8 @@ int main(int argc, char** argv) {
 	}
 
 	servo = new Servo(atoi(argv[1]), atoi(argv[2]));
+
+	servo->close();
 
 	pinMode(atoi(argv[3]), INPUT);
 	pullUpDnControl(atoi(argv[3]), PUD_UP);
